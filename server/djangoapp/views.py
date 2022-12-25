@@ -10,7 +10,7 @@ from datetime import datetime
 import logging
 import json
 
-from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
+from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request, get_dealer_by_id_from_cf
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -96,14 +96,13 @@ def registration_request(request):
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
+        context = {}
         url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
               "-package/get-dealership.json"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
-        # Concat all dealer's short name
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
-        # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        context["dealership_list"] = dealerships
+        return render(request, 'djangoapp/index.html', context)
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
@@ -111,14 +110,18 @@ def get_dealerships(request):
 # ...
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
+        context = {}
         url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
               "-package/get-review.json"
         # Get dealers from the URL
         dealer_reviews = get_dealer_reviews_from_cf(url, dealer_id)
-        # Concat all dealer's short name
-        review_ids = ' '.join([str(review.id) + " " + review.sentiment for review in dealer_reviews])
-        # Return a list of dealer short name
-        return HttpResponse(review_ids)
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
+              "-package/get-dealership.json"
+        dealer = get_dealer_by_id_from_cf(url, dealer_id)[0]
+        context["review_list"] = dealer_reviews
+        context["dealer_id"] = dealer_id
+        context["dealer_full_name"] = dealer.full_name
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 
 # Create a `add_review` view to submit a review

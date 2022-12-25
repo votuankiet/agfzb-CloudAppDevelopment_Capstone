@@ -16,7 +16,7 @@ def get_request(url, api_key, **kwargs):
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        if api_key:
+        if api_key is not None:
             # Basic authentication GET
             response = requests.get(url, params=kwargs, headers={'Content-Type': 'application/json'},
                                     auth=HTTPBasicAuth('apikey', api_key))
@@ -55,7 +55,7 @@ def post_request(url, json_payload, **kwargs):
 def get_dealers_from_cf(url, **kwargs):
     results = []
     # Call get_request with a URL parameter
-    json_result = get_request(url)
+    json_result = get_request(url, None)
     if json_result:
         # Get the row list in JSON as dealers
         dealers = json_result["rows"]
@@ -79,7 +79,7 @@ def get_dealers_from_cf(url, **kwargs):
 def get_dealer_by_id_from_cf(url, dealer_id):
     results = []
     # Call get_request with a URL parameter
-    json_result = get_request(url, api_key=None, dealerId=dealer_id)
+    json_result = get_request(url, api_key=None, id=dealer_id)
     if json_result:
         # Get the row list in JSON as dealers
         dealers = json_result["rows"]
