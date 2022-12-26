@@ -61,3 +61,25 @@ class DealerReview:
         self.car_year = car_year
         self.sentiment = sentiment
         self.id = id
+
+
+class Car:
+    def __init__(self, car_id, model, make, year):
+        self.id = car_id
+        self.model = model
+        self.make = make
+        self.year = year
+
+    @staticmethod
+    def get_car_list():
+        return [
+            Car(1, "Forester", "Subaru", 2021),
+            Car(2, "Ascent", "Subaru", 2022),
+            Car(3, "Highlander", "Toyota", 2000),
+            Car(4, "Fortuner", "Toyota", 2005)]
+
+    @staticmethod
+    def get_car_by_id(car_id):
+        for car in Car.get_car_list():
+            if car.id == car_id:
+                return car

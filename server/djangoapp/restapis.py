@@ -37,8 +37,7 @@ def get_request(url, api_key, **kwargs):
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 def post_request(url, json_payload, **kwargs):
     try:
-        response = requests.post(url, headers={'Content-Type': 'application/json'}, json=json_payload,
-                                 params=kwargs)
+        response = requests.post(url, headers={'Content-Type': 'application/json'}, json=json_payload)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -116,7 +115,7 @@ def get_dealer_reviews_from_cf(url, dealer_id):
                 car_model=review_doc["car_model"],
                 car_year=review_doc["car_year"],
                 sentiment=None,
-                id=review_doc["id"]
+                id=review_doc.get("id", "")
             )
 
             review_obj.sentiment = analyze_review_sentiments(review_obj.review)
