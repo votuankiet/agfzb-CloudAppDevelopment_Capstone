@@ -4,6 +4,8 @@ import json
 from requests.auth import HTTPBasicAuth
 import requests
 import json
+
+from .apps import DjangoappConfig
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
 
@@ -130,9 +132,8 @@ def get_dealer_reviews_from_cf(url, dealer_id):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
 def analyze_review_sentiments(text):
-    json_result = get_request("https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances"
-                              "/0ad1b0f8-6862-433c-a565-4c6fd3d6b3dd/v1/analyze",
-                              "", text=text, version="2022-04-07",
+    json_result = get_request(DjangoappConfig.nlu_analyze_url,
+                              DjangoappConfig.nlu_analyze_api_key, text=text, version="2022-04-07",
                               features="sentiment",
                               return_analyzed_text=True, language="en")
     return json_result["sentiment"]["document"]["label"]

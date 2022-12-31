@@ -10,6 +10,7 @@ from datetime import datetime
 import logging
 import json
 
+from djangoapp.apps import DjangoappConfig
 from djangoapp.models import Car
 from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request, get_dealer_by_id_from_cf
 
@@ -98,8 +99,7 @@ def registration_request(request):
 def get_dealerships(request):
     if request.method == "GET":
         context = {}
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
-              "-package/get-dealership.json"
+        url = DjangoappConfig.get_dealership_url
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         context["dealership_list"] = dealerships
@@ -112,12 +112,10 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
         context = {}
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
-              "-package/get-review.json"
+        url = DjangoappConfig.get_review_url
         # Get dealers from the URL
         dealer_reviews = get_dealer_reviews_from_cf(url, dealer_id)
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
-              "-package/get-dealership.json"
+        url = DjangoappConfig.get_dealership_url
         dealer = get_dealer_by_id_from_cf(url, dealer_id)[0]
         context["review_list"] = dealer_reviews
         context["dealer_id"] = dealer_id
@@ -146,14 +144,12 @@ def add_review(request, dealer_id):
                   "review": request.POST["content"],
                   }
         json_payload = {"review": review}
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
-              "-package/post-review.json"
+        url = DjangoappConfig.post_review_url
         result = post_request(url, json_payload, dealerId=dealer_id)
         return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
     elif request.method == "GET":
         context = {}
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/712c8d50-5529-460c-91f5-a5185b708cbd/dealership" \
-              "-package/get-dealership.json"
+        url = DjangoappConfig.get_dealership_url
         dealer = get_dealer_by_id_from_cf(url, dealer_id)[0]
         cars = Car.get_car_list()
         context["dealer_full_name"] = dealer.full_name
