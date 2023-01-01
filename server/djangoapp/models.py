@@ -63,23 +63,31 @@ class DealerReview:
         self.id = id
 
 
-class Car:
-    def __init__(self, car_id, model, make, year):
-        self.id = car_id
-        self.model = model
-        self.make = make
-        self.year = year
+class CarMake(models.Model):
+    name = models.CharField(null=False, max_length=30)
+    description = models.CharField(max_length=1000)
 
-    @staticmethod
-    def get_car_list():
-        return [
-            Car(1, "Forester", "Subaru", 2021),
-            Car(2, "Ascent", "Subaru", 2022),
-            Car(3, "Highlander", "Toyota", 2000),
-            Car(4, "Fortuner", "Toyota", 2005)]
+    def __str__(self):
+        return "Car make name: {}, description: {}".format(self.name, self.description)
 
-    @staticmethod
-    def get_car_by_id(car_id):
-        for car in Car.get_car_list():
-            if car.id == car_id:
-                return car
+
+class CarModel(models.Model):
+    Sedan = "Sedan"
+    SUV = "SUV"
+    WAGON = "WAGON"
+    TYPES = [
+        (Sedan, 'Sedan'),
+        (SUV, 'SUV'),
+        (WAGON, 'WAGON')
+    ]
+    make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
+    dealer_id = models.IntegerField(default=0)
+    name = models.CharField(null=False, max_length=30)
+    type = models.CharField(max_length=5, choices=TYPES, default=Sedan)
+    year = models.DateField(default=now)
+
+
+# Car(1, "Forester", "Subaru", 2021),
+# Car(2, "Ascent", "Subaru", 2022),
+# Car(3, "Highlander", "Toyota", 2000),
+# Car(4, "Fortuner", "Toyota", 2005)]

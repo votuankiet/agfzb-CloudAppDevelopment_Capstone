@@ -11,7 +11,7 @@ import logging
 import json
 
 from djangoapp.apps import DjangoappConfig
-from djangoapp.models import Car
+from djangoapp.models import CarModel
 from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request, get_dealer_by_id_from_cf
 
 # Get an instance of a logger
@@ -133,10 +133,10 @@ def add_review(request, dealer_id):
         if user.id is None or not user.is_authenticated:
             context['message'] = "Please log in to submit answer."
             return render(request, 'djangoapp/user_login_bootstrap.html', context)
-        car = Car.get_car_by_id(int(request.POST["car"]))
-        review = {"car_make": car.make,
-                  "car_model": car.model,
-                  "car_year": car.year,
+        car = get_object_or_404(CarModel, pk=int(request.POST["car"]))
+        review = {"car_make": car.make.name,
+                  "car_model": car.name,
+                  "car_year": car.year.year,
                   "dealership": dealer_id,
                   "name": "{} {}".format(user.first_name, user.last_name),
                   "purchase": True if request.POST.get("purchasecheck") is not None else False,
@@ -151,7 +151,11 @@ def add_review(request, dealer_id):
         context = {}
         url = DjangoappConfig.get_dealership_url
         dealer = get_dealer_by_id_from_cf(url, dealer_id)[0]
-        cars = Car.get_car_list()
+        cars = []
+        car_qs = CarModel.objects.filter(dealer_id=dealer_id)
+        for car in car_qs:
+            cars.append(car)
+
         context["dealer_full_name"] = dealer.full_name
         context["dealer_id"] = dealer.id
         context["cars"] = cars
